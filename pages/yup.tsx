@@ -2,18 +2,29 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 
 type Inputs = {
   email: string;
   password: string;
 };
 
-const Home: NextPage = () => {
+const schema = yup
+  .object({
+    email: yup.string().email().required(),
+    password: yup.string().min(6).required(),
+  })
+  .required();
+
+const Yup: NextPage = () => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<Inputs>();
+  } = useForm<Inputs>({
+    resolver: yupResolver(schema),
+  });
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     console.log(data);
@@ -28,26 +39,14 @@ const Home: NextPage = () => {
       </Head>
 
       <main className={styles.main}>
-        <h1>Vanilla</h1>
+        <h1>Yup</h1>
         <form onSubmit={handleSubmit(onSubmit)}>
           <label htmlFor="email">Email</label>
-          <input
-            type="text"
-            {...register("email", {
-              required: "Requerido",
-              pattern: { value: /\S+@\S+\.\S+/i, message: "Invalid email" },
-            })}
-          />
+          <input type="text" {...register("email")} />
           {errors.email ? <div>{errors.email.message}</div> : null}
 
           <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            {...register("password", {
-              required: "Requerido",
-              minLength: { value: 6, message: "Min 6 characters" },
-            })}
-          />
+          <input type="password" {...register("password")} />
           {errors.password ? <div>{errors.password.message}</div> : null}
 
           <input type="submit" />
@@ -57,4 +56,4 @@ const Home: NextPage = () => {
   );
 };
 
-export default Home;
+export default Yup;
